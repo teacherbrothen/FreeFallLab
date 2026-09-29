@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vertical Motion Analysis</title>
+  <style>
+    :root {
+      --bg: #1e293b;
+      --card: #334155;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin: 0 0 16px 0;
+      font-size: 1.6rem;
+    }
+    .container {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 900px;
+      width: 100%;
+    }
+    .video-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      display: inline-block;
+      max-width: 100%;
+      cursor: crosshair;
+    }
+    video {
+      display: block;
+      max-height: 68vh;
+      max-width: 100%;
+    }
+    #hairline {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 50, 50, 0.85);
+      box-shadow: 0 0 4px rgba(255, 0, 0, 0.9);
+      pointer-events: none;
+      display: none;
+    }
+    .readout-panel {
+      display: flex;
+      gap: 24px;
+      margin: 16px 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      background: #0f172a;
+      padding: 10px 28px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+    }
+    .readout-panel span {
+      color: var(--accent);
+      font-family: monospace;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    button {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    button:hover {
+      background: #0369a1;
+    }
+    button.secondary {
+      background: #475569;
+    }
+    button.secondary:hover {
+      background: #64748b;
+    }
+    button.play-active {
+      background: #10b981;
+      font-weight: 700;
+    }
+    button.pause-btn {
+      background: #ef4444;
+    }
+    button.pause-btn:hover {
+      background: #dc2626;
+    }
+    .instructions {
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Vertical Motion Analysis</h1>
+
+    <!-- Embedded Video Player -->
+    <div class="video-wrapper" id="videoContainer">
+      <video id="vid" preload="auto" playsinline>
+        <source src="FreeFall.mp4" type="video/mp4">
+        <source src="FreeFall.mov" type="video/quicktime">
+        Your browser does not support HTML video.
+      </video>
+      <div id="hairline"></div>
+    </div>
+
+    <!-- Data Readout -->
+    <div class="readout-panel">
+      <div>Time: <span id="timeDisplay">0.0000</span> s</div>
+      <div>Frame: <span id="frameDisplay">0</span></div>
+    </div>
+
+    <!-- Frame Stepping Controls -->
+    <div class="controls">
+      <button class="secondary" onclick="step(-5)">« -5 Frames</button>
+      <button onclick="step(-1)">‹ -1 Frame</button>
+      <button onclick="step(1)">+1 Frame ›</button>
+      <button class="secondary" onclick="step(5)">+5 Frames »</button>
+      <button class="secondary" onclick="setZero()">Set t = 0</button>
+      <button class="secondary" id="guideBtn" onclick="toggleGuide()">Toggle Guide Line</button>
+    </div>
+
+    <!-- Playback Controls -->
+    <div class="controls">
+      <button id="playBtn" class="secondary" onclick="playSloMo()">▶ Play Slo-Mo</button>
+      <button id="pauseBtn" class="pause-btn" onclick="pauseVideo()">⏸ Pause</button>
+    </div>
+
+    <div class="instructions">
+      <strong>Keyboard Controls:</strong> <b>Left / Right Arrows</b>: Step 1 frame &bull; <b>Shift + Left / Right</b>: Step 5 frames &bull; <b>Spacebar</b>: Play / Pause.<br>
+      Hover mouse over video to align the hairline with the marble or ruler markings.
+    </div>
+  </div>
+
+  <script>
+    const vid = document.getElementById('vid');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const frameDisplay = document.getElementById('frameDisplay');
+    const playBtn = document.getElementById('playBtn');
+    const hairline = document.getElementById('hairline');
+    const container = document.getElementById('videoContainer');
+
+    // --- PHYSICS / TIMING SETTINGS ---
+    const EXPORTED_FPS = 30;         
+    const CAPTURE_FPS = 240;         
+    const FRAME_DURATION = 1 / EXPORTED_FPS;       
+    const REAL_DT_PER_FRAME = 1 / CAPTURE_FPS;    // 0.004167 s real-world time per frame
+
+    let zeroFrame = 0;
+    let guideActive = true;
+    let animationFrameId = null;
+
+    function getCurrentFrame() {
+      return Math.round(vid.currentTime * EXPORTED_FPS);
+    }
+
+    function updateDisplays() {
+      const currentFrame = getCurrentFrame();
+      const relativeFrame = currentFrame - zeroFrame;
+      const realTime = relativeFrame * REAL_DT_PER_FRAME;
+
+      timeDisplay.textContent = realTime.toFixed(4);
+      frameDisplay.textContent = relativeFrame;
+    }
+
+    function loopUpdate() {
+      updateDisplays();
+      if (!vid.paused) {
+        animationFrameId = requestAnimationFrame(loopUpdate);
+      }
+    }
+
+    vid.addEventListener('play', () => {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(loopUpdate);
+      playBtn.className = 'play-active';
+    });
+
+    vid.addEventListener('pause', () => {
+      cancelAnimationFrame(animationFrameId);
+      playBtn.className = 'secondary';
+      updateDisplays();
+    });
+
+    vid.addEventListener('ended', () => {
+      playBtn.className = 'secondary';
+    });
+
+    vid.addEventListener('seeked', updateDisplays);
+
+    function step(numFrames) {
+      pauseVideo();
+      vid.currentTime = Math.max(0, vid.currentTime + (numFrames * FRAME_DURATION));
+    }
+
+    function setZero() {
+      zeroFrame = getCurrentFrame();
+      updateDisplays();
+    }
+
+    function playSloMo() {
+      // Auto-rewind if at or near the end
+      if (vid.ended || vid.currentTime >= vid.duration - 0.05) {
+        vid.currentTime = 0;
+      }
+      vid.playbackRate = 1.0;
+      vid.play();
+    }
+
+    function pauseVideo() {
+      vid.pause();
+      playBtn.className = 'secondary';
+    }
+
+    function togglePlayPause() {
+      if (vid.paused) {
+        playSloMo();
+      } else {
+        pauseVideo();
+      }
+    }
+
+    // Hairline guide tracking
+    container.addEventListener('mousemove', (e) => {
+      if (!guideActive) return;
+      const rect = container.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      hairline.style.top = y + 'px';
+      hairline.style.display = 'block';
+    });
+
+    container.addEventListener('mouseleave', () => {
+      hairline.style.display = 'none';
+    });
+
+    function toggleGuide() {
+      guideActive = !guideActive;
+      if (!guideActive) hairline.style.display = 'none';
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        step(e.shiftKey ? 5 : 1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        step(e.shiftKey ? -5 : -1);
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        togglePlayPause();
+      }
+    });
+  </script>
+</body>
+</html>
