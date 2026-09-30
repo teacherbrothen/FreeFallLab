@@ -6,57 +6,76 @@
   <title>Vertical Motion Analysis</title>
   <style>
     :root {
-      --bg: #1e293b;
-      --card: #334155;
-      --accent: #38bdf8;
-      --text: #f8fafc;
-      --green: #10b981;
-      --red: #ef4444;
-      --yellow: #f59e0b;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --panel-bg: #f8fafc;
+      --border: #cbd5e1;
+      --border-light: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --primary-blue: #0284c7;
+      --primary-blue-hover: #0369a1;
+      --accent-green: #16a34a;
+      --accent-green-hover: #15803d;
+      --accent-red: #ef4444;
+      --accent-red-hover: #dc2626;
+      --pill-bg: #ffedd5;
+      --pill-text: #9a3412;
+      --pill-border: #fed7aa;
     }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
-      color: var(--text);
+      color: var(--text-main);
       margin: 0;
-      padding: 16px;
+      padding: 20px 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
     header {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 16px;
-      gap: 10px;
+      margin-bottom: 20px;
+      gap: 12px;
     }
+
     h1 {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text-main);
     }
+
+    /* View Toggle */
     .view-toggle {
       display: flex;
-      background: #0f172a;
+      background: #e2e8f0;
       padding: 4px;
-      border-radius: 8px;
-      border: 1px solid #475569;
+      border-radius: 10px;
+      gap: 4px;
     }
     .view-toggle button {
       background: transparent;
-      color: #94a3b8;
+      color: var(--text-muted);
       border: none;
-      padding: 8px 18px;
-      border-radius: 6px;
+      padding: 8px 20px;
+      border-radius: 8px;
       font-size: 0.95rem;
       cursor: pointer;
       font-weight: 600;
       transition: all 0.2s;
     }
     .view-toggle button.active {
-      background: var(--accent);
-      color: #0f172a;
+      background: var(--card-bg);
+      color: var(--primary-blue);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
+
+    /* Layout Containers */
     .view-section {
       width: 100%;
       max-width: 1200px;
@@ -69,51 +88,64 @@
       justify-content: center;
       gap: 20px;
     }
+
     .card {
-      background: var(--card);
-      padding: 18px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
       align-items: center;
+      box-sizing: border-box;
     }
     .video-card { flex: 1 1 480px; max-width: 560px; }
     .table-card { flex: 1 1 420px; max-width: 520px; }
     .graph-card { flex: 1 1 520px; max-width: 580px; }
 
+    /* Video Frame */
     .video-wrapper {
       position: relative;
       background: #000;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       display: inline-block;
       max-width: 100%;
       cursor: crosshair;
+      border: 1px solid var(--border);
     }
-    video { display: block; max-height: 58vh; max-width: 100%; }
+    video { display: block; max-height: 56vh; max-width: 100%; }
     #hairline {
       position: absolute;
       left: 0;
       width: 100%;
-      height: 1px;
-      background: rgba(255, 50, 50, 0.85);
-      box-shadow: 0 0 4px rgba(255, 0, 0, 0.9);
+      height: 1.5px;
+      background: rgba(239, 68, 68, 0.9);
+      box-shadow: 0 0 4px rgba(239, 68, 68, 0.8);
       pointer-events: none;
       display: none;
     }
+
+    /* Readouts Panel */
     .readout-panel {
       display: flex;
-      gap: 20px;
-      margin: 12px 0;
+      gap: 24px;
+      margin: 14px 0;
       font-size: 1.15rem;
       font-weight: 600;
-      background: #0f172a;
-      padding: 8px 20px;
-      border-radius: 8px;
-      border: 1px solid #475569;
+      background: var(--panel-bg);
+      padding: 10px 24px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
     }
-    .readout-panel span { color: var(--accent); font-family: monospace; }
+    .readout-panel span {
+      color: var(--primary-blue);
+      font-family: monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Buttons */
     .controls {
       display: flex;
       flex-wrap: wrap;
@@ -122,73 +154,91 @@
       margin-bottom: 8px;
     }
     button.btn {
-      background: #0284c7;
+      background: var(--primary-blue);
       color: white;
       border: none;
-      padding: 7px 14px;
-      border-radius: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
       font-size: 0.9rem;
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.15s;
     }
-    button.btn:hover { background: #0369a1; }
-    button.btn-secondary { background: #475569; }
-    button.btn-secondary:hover { background: #64748b; }
-    button.btn-play-active { background: var(--green); font-weight: 700; }
-    button.btn-pause { background: var(--red); }
-    button.btn-pause:hover { background: #dc2626; }
-    button.btn-action { background: var(--green); font-weight: 600; }
-    button.btn-action:hover { background: #059669; }
+    button.btn:hover { background: var(--primary-blue-hover); }
+    button.btn-secondary {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+    button.btn-secondary:hover { background: #cbd5e1; }
+    button.btn-play-active { background: var(--accent-green); }
+    button.btn-pause { background: var(--accent-red); }
+    button.btn-pause:hover { background: var(--accent-red-hover); }
+    button.btn-action { background: var(--accent-green); }
+    button.btn-action:hover { background: var(--accent-green-hover); }
 
+    /* Observation Table */
     .table-container {
       width: 100%;
-      max-height: 65vh;
+      max-height: 64vh;
       overflow-y: auto;
-      border: 1px solid #475569;
-      border-radius: 6px;
-      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card-bg);
     }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: center; }
     th {
-      background: #1e293b;
+      background: var(--panel-bg);
       position: sticky;
       top: 0;
-      padding: 8px;
-      color: var(--accent);
-      border-bottom: 2px solid #475569;
-      font-weight: 600;
+      padding: 10px 8px;
+      color: var(--text-main);
+      border-bottom: 2px solid var(--border);
+      font-weight: 700;
     }
-    td { padding: 5px 8px; border-bottom: 1px solid #334155; }
-    tr.active-row { background: rgba(2, 132, 199, 0.3) !important; font-weight: bold; }
-    tr:hover { background: #1e293b; cursor: pointer; }
+    td { padding: 6px 8px; border-bottom: 1px solid var(--border-light); }
+    tr.active-row { background: #e0f2fe !important; font-weight: bold; }
+    tr:hover { background: #f8fafc; cursor: pointer; }
+
+    /* Styled Input Boxes */
     input.pos-input {
-      width: 75px;
-      background: #1e293b;
-      color: #f8fafc;
-      border: 1px solid #475569;
-      border-radius: 4px;
-      padding: 4px 6px;
+      width: 78px;
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
       text-align: center;
       font-size: 0.95rem;
+      font-weight: 500;
+      outline: none;
+      transition: border 0.15s;
     }
-    input.pos-input:focus { outline: none; border-color: var(--accent); background: #0f172a; }
-    .vel-cell { font-family: monospace; color: #a7f3d0; font-size: 0.95rem; }
+    input.pos-input:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .vel-cell {
+      font-family: monospace;
+      color: var(--accent-green);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
 
-    /* --- FIXED NON-JITTERING HEADER BAR --- */
+    /* Fixed Graph Control Header */
     .graph-header-bar {
       width: 100%;
       max-width: 1200px;
-      background: var(--card);
+      background: var(--card-bg);
       padding: 14px 20px;
-      border-radius: 12px;
+      border-radius: 16px;
       margin-bottom: 16px;
       display: flex;
-      flex-wrap: nowrap;          /* Prevent wrapping */
+      flex-wrap: nowrap;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-light);
       box-sizing: border-box;
     }
     .slider-group {
@@ -196,18 +246,19 @@
       align-items: center;
       gap: 12px;
       flex: 1 1 auto;
-      min-width: 320px;
+      min-width: 300px;
     }
     .slider-group input[type="range"] {
       flex: 1;
       cursor: pointer;
+      accent-color: var(--primary-blue);
     }
     .graph-readouts {
       display: flex;
-      gap: 20px;
+      gap: 18px;
       font-size: 0.92rem;
       font-weight: 600;
-      flex-shrink: 0;             /* Don't allow this to crush */
+      flex-shrink: 0;
     }
     .readout-item {
       display: flex;
@@ -215,41 +266,45 @@
       gap: 6px;
       white-space: nowrap;
     }
-    /* Fixed width and tabular fonts prevent any jumpiness */
     .num-slot {
       display: inline-block;
-      width: 82px;
+      width: 84px;
       text-align: right;
       font-family: monospace;
       font-variant-numeric: tabular-nums;
-      color: var(--accent);
+      color: var(--primary-blue);
       font-size: 1rem;
+      font-weight: 700;
     }
-    .time-slot {
-      width: 68px;
-    }
+    .time-slot { width: 70px; }
+
+    /* Canvas styling */
     canvas {
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 8px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
       width: 100%;
       height: 380px;
     }
+
+    /* Result pill matching the screenshot's peach notice style */
     .slope-result {
       margin-top: 10px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: #a7f3d0;
-      background: #0f172a;
-      padding: 8px 16px;
-      border-radius: 6px;
-      border: 1px solid #059669;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--pill-text);
+      background: var(--pill-bg);
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1px solid var(--pill-border);
       display: none;
+      text-align: center;
     }
+
     .instructions {
       margin-top: 12px;
       font-size: 0.85rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       text-align: center;
       line-height: 1.4;
     }
@@ -304,15 +359,15 @@
     </div>
 
     <div class="card table-card">
-      <h2 style="font-size: 1.15rem; margin: 0 0 10px 0;">Observation Table</h2>
+      <h2 style="font-size: 1.15rem; margin: 0 0 10px 0; color: var(--text-main);">Observation Table</h2>
       <div class="table-container">
         <table>
           <thead>
             <tr>
               <th>Frame</th>
               <th>Time (s)</th>
-              <th>Position <i>y</i> (cm)</th>
-              <th>Velocity <i>v<sub>y</sub></i> (cm/s)</th>
+              <th style="color: var(--primary-blue);">Position <i>y</i> (cm)</th>
+              <th style="color: var(--accent-green);">Velocity <i>v<sub>y</sub></i> (cm/s)</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -325,7 +380,6 @@
   <!-- ================= VIEW 2: GRAPH ANALYSIS ================= -->
   <div id="viewGraphs" class="view-section">
     
-    <!-- Stable, fixed-width header bar -->
     <div class="graph-header-bar">
       <div class="slider-group">
         <label for="timeSlider" style="font-weight: 600; white-space: nowrap;">Time Cursor (<i>t</i>):</label>
@@ -338,18 +392,18 @@
         </div>
         <div class="readout-item">
           <span><i>d-t</i> Tangent Slope:</span>
-          <span class="num-slot" id="dtSlopeText">—</span>
+          <span class="num-slot" id="dtSlopeText" style="color: var(--primary-blue);">—</span>
         </div>
         <div class="readout-item">
           <span><i>v-t</i> Value:</span>
-          <span class="num-slot" id="vtValueText">—</span>
+          <span class="num-slot" id="vtValueText" style="color: var(--accent-green);">—</span>
         </div>
       </div>
     </div>
 
     <!-- Left Graph: Position vs Time -->
     <div class="card graph-card">
-      <h2 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Position vs. Time (<i>d - t</i>)</h2>
+      <h2 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--primary-blue);">Position vs. Time (<i>d - t</i>)</h2>
       <canvas id="dtCanvas" width="540" height="380"></canvas>
       <div class="instructions">
         Red line shows instantaneous tangent slope. Notice it flattens at the peak!
@@ -358,9 +412,9 @@
 
     <!-- Right Graph: Velocity vs Time -->
     <div class="card graph-card">
-      <h2 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Velocity vs. Time (<i>v - t</i>)</h2>
+      <h2 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent-green);">Velocity vs. Time (<i>v - t</i>)</h2>
       <canvas id="vtCanvas" width="540" height="380"></canvas>
-      <div style="margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+      <div style="margin-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;">
         <button class="btn btn-action" onclick="toggleSlopeCalculation()">📐 Calculate Acceleration (Slope)</button>
         <div id="slopeResultBox" class="slope-result"></div>
       </div>
@@ -410,7 +464,7 @@
           <td>${row.time.toFixed(4)}</td>
           <td>
             <input type="number" step="0.1" class="pos-input" id="input-${index}" 
-                   placeholder="0.0" oninput="handlePosInput(${index}, this.value)">
+                   placeholder="e.g. 0.0" oninput="handlePosInput(${index}, this.value)">
           </td>
           <td class="vel-cell" id="vel-${index}">—</td>
         `;
@@ -420,7 +474,7 @@
 
     createTable();
 
-    // Calculate instantaneous velocity via Central Difference Method
+    // Central Difference Velocity Calculation
     function calculateVelocities() {
       for (let i = 0; i < rowsData.length; i++) {
         const velCell = document.getElementById(`vel-${i}`);
@@ -600,7 +654,7 @@
       drawAllGraphs();
     });
 
-    // Quadratic fit (y = At^2 + Bt + C) for position curve
+    // Quadratic fit for position curve: y = At^2 + Bt + C
     function fitQuadratic(validPoints) {
       let n = validPoints.length;
       if (n < 3) return null;
@@ -643,19 +697,15 @@
       const validYPoints = rowsData.filter(r => r.y !== null && !isNaN(r.y));
       const validVPoints = rowsData.filter(r => r.vy !== null && !isNaN(r.vy));
 
-      // 1. Fit position parabola: y(t) = A*t^2 + B*t + C
       const qFit = fitQuadratic(validYPoints);
 
-      // 2. Derive analytical velocity: v(t) = dy/dt = 2*A*t + B
       let sharedV = null;
       let sharedFit = null;
 
       if (qFit) {
-        // v = m*t + b  where m = 2A, b = B
         sharedFit = { m: 2 * qFit.A, b: qFit.B };
         sharedV = sharedFit.m * curT + sharedFit.b;
 
-        // Both values are now guaranteed to match identically:
         const vFormatted = sharedV.toFixed(1) + ' cm/s';
         dtSlopeText.textContent = vFormatted;
         vtValueText.textContent = vFormatted;
@@ -664,7 +714,6 @@
         vtValueText.textContent = '—';
       }
 
-      // Draw both graphs with matching values
       drawDtGraph(validYPoints, qFit, curT);
       drawVtGraph(validVPoints, sharedFit, curT, sharedV);
     }
@@ -682,8 +731,9 @@
 
       drawGrid(dtCtx, w, h, padL, padR, padT, padB, minT, maxT, minY, maxY, toX, toY, 'Time (s)', 'Position y (cm)');
 
+      // Draw Parabola
       if (qFit) {
-        dtCtx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+        dtCtx.strokeStyle = '#0284c7';
         dtCtx.lineWidth = 2.5;
         dtCtx.beginPath();
         for (let t = minT; t <= maxT; t += 0.005) {
@@ -702,7 +752,7 @@
         let y1 = yAtT + slope * (t1 - curT);
         let y2 = yAtT + slope * (t2 - curT);
 
-        // Red tangent line
+        // Tangent Line
         dtCtx.strokeStyle = '#ef4444';
         dtCtx.lineWidth = 2.5;
         dtCtx.beginPath();
@@ -716,12 +766,15 @@
         dtCtx.fill();
       }
 
-      // Student position points
-      dtCtx.fillStyle = '#38bdf8';
+      // Student Data Points
       for (let p of points) {
+        dtCtx.fillStyle = '#0284c7';
         dtCtx.beginPath();
         dtCtx.arc(toX(p.time), toY(p.y), 4.5, 0, Math.PI * 2);
         dtCtx.fill();
+        dtCtx.strokeStyle = '#ffffff';
+        dtCtx.lineWidth = 1.5;
+        dtCtx.stroke();
       }
     }
 
@@ -738,9 +791,9 @@
 
       drawGrid(vtCtx, w, h, padL, padR, padT, padB, minT, maxT, minV, maxV, toX, toY, 'Time (s)', 'Velocity vy (cm/s)');
 
-      // If slope calculation requested
+      // Acceleration Fit Line
       if (vFit && showSlope) {
-        vtCtx.strokeStyle = '#10b981';
+        vtCtx.strokeStyle = '#16a34a';
         vtCtx.lineWidth = 2.5;
         vtCtx.beginPath();
         vtCtx.moveTo(toX(minT), toY(vFit.m * minT + vFit.b));
@@ -755,7 +808,7 @@
         slopeResultBox.style.display = 'none';
       }
 
-      // Current velocity indicator
+      // Cursor indicator
       if (vFit && currentV !== null) {
         vtCtx.fillStyle = '#ef4444';
         vtCtx.beginPath();
@@ -771,17 +824,22 @@
         vtCtx.setLineDash([]);
       }
 
-      // Student calculated velocity points
-      vtCtx.fillStyle = '#a7f3d0';
+      // Student Calculated Velocity Points
       for (let p of points) {
+        vtCtx.fillStyle = '#16a34a';
         vtCtx.beginPath();
         vtCtx.arc(toX(p.time), toY(p.vy), 4.5, 0, Math.PI * 2);
         vtCtx.fill();
+        vtCtx.strokeStyle = '#ffffff';
+        vtCtx.lineWidth = 1.5;
+        vtCtx.stroke();
       }
     }
 
+    // Light Theme Grid & Axes
     function drawGrid(ctx, w, h, padL, padR, padT, padB, minX, maxX, minY, maxY, toX, toY, xLabel, yLabel) {
-      ctx.strokeStyle = '#334155';
+      // Subtle background grid
+      ctx.strokeStyle = '#e2e8f0';
       ctx.lineWidth = 1;
 
       // X Grid
@@ -791,7 +849,7 @@
         ctx.lineTo(toX(x), toY(maxY));
         ctx.stroke();
 
-        ctx.fillStyle = '#94a3b8';
+        ctx.fillStyle = '#64748b';
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(x.toFixed(1), toX(x), h - padB + 16);
@@ -806,7 +864,7 @@
         ctx.lineTo(toX(maxX), toY(y));
         ctx.stroke();
 
-        ctx.fillStyle = '#94a3b8';
+        ctx.fillStyle = '#64748b';
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'right';
         ctx.fillText(y, padL - 8, toY(y) + 4);
@@ -814,7 +872,7 @@
 
       // Zero axis line
       if (minY <= 0 && maxY >= 0) {
-        ctx.strokeStyle = '#64748b';
+        ctx.strokeStyle = '#94a3b8';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(toX(minX), toY(0));
@@ -822,17 +880,19 @@
         ctx.stroke();
       }
 
-      ctx.strokeStyle = '#475569';
+      // Outer border
+      ctx.strokeStyle = '#cbd5e1';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(padL, padT, w - padL - padR, h - padT - padB);
 
-      ctx.fillStyle = '#f8fafc';
-      ctx.font = '12px sans-serif';
+      // Labels
+      ctx.fillStyle = '#1e293b';
+      ctx.font = 'bold 12px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(xLabel, padL + (w - padL - padR) / 2, h - 10);
 
       ctx.save();
-      ctx.translate(15, padT + (h - padT - padB) / 2);
+      ctx.translate(16, padT + (h - padT - padB) / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.fillText(yLabel, 0, 0);
       ctx.restore();
