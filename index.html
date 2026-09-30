@@ -10,7 +10,9 @@
       --card: #334155;
       --accent: #38bdf8;
       --text: #f8fafc;
-      --row-active: #0284c7;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
     }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -22,18 +24,52 @@
       flex-direction: column;
       align-items: center;
     }
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
     h1 {
-      margin: 0 0 16px 0;
+      margin: 0;
       font-size: 1.5rem;
     }
-    .main-layout {
+    /* View Toggle Tabs */
+    .view-toggle {
+      display: flex;
+      background: #0f172a;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+    }
+    .view-toggle button {
+      background: transparent;
+      color: #94a3b8;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .view-toggle button.active {
+      background: var(--accent);
+      color: #0f172a;
+    }
+    /* Layouts */
+    .view-section {
+      width: 100%;
+      max-width: 1200px;
+      display: none;
+    }
+    .view-section.active-view {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 24px;
-      max-width: 1200px;
-      width: 100%;
+      gap: 20px;
     }
     .card {
       background: var(--card);
@@ -44,14 +80,11 @@
       flex-direction: column;
       align-items: center;
     }
-    .video-card {
-      flex: 1 1 480px;
-      max-width: 560px;
-    }
-    .table-card {
-      flex: 1 1 420px;
-      max-width: 520px;
-    }
+    .video-card { flex: 1 1 480px; max-width: 560px; }
+    .table-card { flex: 1 1 420px; max-width: 520px; }
+    .graph-card { flex: 1 1 520px; max-width: 580px; }
+
+    /* Video player styling */
     .video-wrapper {
       position: relative;
       background: #000;
@@ -61,11 +94,7 @@
       max-width: 100%;
       cursor: crosshair;
     }
-    video {
-      display: block;
-      max-height: 60vh;
-      max-width: 100%;
-    }
+    video { display: block; max-height: 58vh; max-width: 100%; }
     #hairline {
       position: absolute;
       left: 0;
@@ -87,10 +116,7 @@
       border-radius: 8px;
       border: 1px solid #475569;
     }
-    .readout-panel span {
-      color: var(--accent);
-      font-family: monospace;
-    }
+    .readout-panel span { color: var(--accent); font-family: monospace; }
     .controls {
       display: flex;
       flex-wrap: wrap;
@@ -98,7 +124,7 @@
       justify-content: center;
       margin-bottom: 8px;
     }
-    button {
+    button.btn {
       background: #0284c7;
       color: white;
       border: none;
@@ -109,40 +135,25 @@
       font-weight: 500;
       transition: all 0.15s;
     }
-    button:hover {
-      background: #0369a1;
-    }
-    button.secondary {
-      background: #475569;
-    }
-    button.secondary:hover {
-      background: #64748b;
-    }
-    button.play-active {
-      background: #10b981;
-      font-weight: 700;
-    }
-    button.pause-btn {
-      background: #ef4444;
-    }
-    button.pause-btn:hover {
-      background: #dc2626;
-    }
-    /* Table styles */
+    button.btn:hover { background: #0369a1; }
+    button.btn-secondary { background: #475569; }
+    button.btn-secondary:hover { background: #64748b; }
+    button.btn-play-active { background: var(--green); font-weight: 700; }
+    button.btn-pause { background: var(--red); }
+    button.btn-pause:hover { background: #dc2626; }
+    button.btn-action { background: var(--green); font-weight: 600; }
+    button.btn-action:hover { background: #059669; }
+
+    /* Table styling */
     .table-container {
       width: 100%;
-      max-height: 70vh;
+      max-height: 65vh;
       overflow-y: auto;
       border: 1px solid #475569;
       border-radius: 6px;
       background: #0f172a;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      text-align: center;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: center; }
     th {
       background: #1e293b;
       position: sticky;
@@ -152,18 +163,9 @@
       border-bottom: 2px solid #475569;
       font-weight: 600;
     }
-    td {
-      padding: 5px 8px;
-      border-bottom: 1px solid #334155;
-    }
-    tr.active-row {
-      background: rgba(2, 132, 199, 0.3) !important;
-      font-weight: bold;
-    }
-    tr:hover {
-      background: #1e293b;
-      cursor: pointer;
-    }
+    td { padding: 5px 8px; border-bottom: 1px solid #334155; }
+    tr.active-row { background: rgba(2, 132, 199, 0.3) !important; font-weight: bold; }
+    tr:hover { background: #1e293b; cursor: pointer; }
     input.pos-input {
       width: 75px;
       background: #1e293b;
@@ -174,15 +176,58 @@
       text-align: center;
       font-size: 0.95rem;
     }
-    input.pos-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: #0f172a;
+    input.pos-input:focus { outline: none; border-color: var(--accent); background: #0f172a; }
+    .vel-cell { font-family: monospace; color: #a7f3d0; font-size: 0.95rem; }
+
+    /* Graph View Styling */
+    .graph-header-bar {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card);
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     }
-    .vel-cell {
-      font-family: monospace;
-      color: #a7f3d0;
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1 1 350px;
+    }
+    .slider-group input[type="range"] {
+      flex: 1;
+      cursor: pointer;
+    }
+    .graph-readouts {
+      display: flex;
+      gap: 20px;
       font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .graph-readouts span { font-family: monospace; color: var(--accent); }
+    canvas {
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      width: 100%;
+      height: 380px;
+    }
+    .slope-result {
+      margin-top: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #a7f3d0;
+      background: #0f172a;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #059669;
+      display: none;
     }
     .instructions {
       margin-top: 12px;
@@ -195,9 +240,16 @@
 </head>
 <body>
 
-  <h1>Vertical Motion Analysis</h1>
+  <header>
+    <h1>Vertical Motion Analysis</h1>
+    <div class="view-toggle">
+      <button id="tabData" class="active" onclick="switchView('data')">📹 1. Data Collection</button>
+      <button id="tabGraphs" onclick="switchView('graphs')">📈 2. Graph Analysis</button>
+    </div>
+  </header>
 
-  <div class="main-layout">
+  <!-- ================= VIEW 1: DATA COLLECTION ================= -->
+  <div id="viewData" class="view-section active-view">
     
     <!-- Left Column: Video & Controls -->
     <div class="card video-card">
@@ -217,18 +269,18 @@
 
       <!-- Step Controls -->
       <div class="controls">
-        <button class="secondary" onclick="step(-7)">« -7 Frames</button>
-        <button onclick="step(-1)">‹ -1 Frame</button>
-        <button onclick="step(1)">+1 Frame ›</button>
-        <button class="secondary" onclick="step(7)">+7 Frames »</button>
-        <button class="secondary" onclick="setZero()">Set t = 0</button>
+        <button class="btn btn-secondary" onclick="step(-7)">« -7 Frames</button>
+        <button class="btn" onclick="step(-1)">‹ -1 Frame</button>
+        <button class="btn" onclick="step(1)">+1 Frame ›</button>
+        <button class="btn btn-secondary" onclick="step(7)">+7 Frames »</button>
+        <button class="btn btn-secondary" onclick="setZero()">Set t = 0</button>
       </div>
 
       <!-- Playback Controls -->
       <div class="controls">
-        <button id="playBtn" class="secondary" onclick="playSloMo()">▶ Play Slo-Mo</button>
-        <button id="pauseBtn" class="pause-btn" onclick="pauseVideo()">⏸ Pause</button>
-        <button class="secondary" id="guideBtn" onclick="toggleGuide()">Toggle Guide</button>
+        <button id="playBtn" class="btn btn-secondary" onclick="playSloMo()">▶ Play Slo-Mo</button>
+        <button id="pauseBtn" class="btn btn-pause" onclick="pauseVideo()">⏸ Pause</button>
+        <button class="btn btn-secondary" id="guideBtn" onclick="toggleGuide()">Toggle Guide</button>
       </div>
 
       <div class="instructions">
@@ -237,7 +289,7 @@
       </div>
     </div>
 
-    <!-- Right Column: Pre-Populated Data Table -->
+    <!-- Right Column: Observation Table -->
     <div class="card table-card">
       <h2 style="font-size: 1.15rem; margin: 0 0 10px 0;">Observation Table</h2>
       <div class="table-container">
@@ -247,13 +299,48 @@
               <th>Frame</th>
               <th>Time (s)</th>
               <th>Position <i>y</i> (cm)</th>
-              <th>Instantaneous Velocity <i>v<sub>y</sub></i> (cm/s)</th>
+              <th>Velocity <i>v<sub>y</sub></i> (cm/s)</th>
             </tr>
           </thead>
-          <tbody id="tableBody">
-            <!-- Dynamically populated rows 0, 7, ..., 105 -->
-          </tbody>
+          <tbody id="tableBody"></tbody>
         </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= VIEW 2: GRAPH ANALYSIS ================= -->
+  <div id="viewGraphs" class="view-section">
+    
+    <!-- Shared Graph Control Bar -->
+    <div class="graph-header-bar">
+      <div class="slider-group">
+        <label for="timeSlider" style="font-weight: 600;">Time Cursor (<i>t</i>):</label>
+        <input type="range" id="timeSlider" min="0" max="0.4884" step="0.001" value="0.20">
+      </div>
+      <div class="graph-readouts">
+        <div>Time: <span id="sliderTimeText">0.2000 s</span></div>
+        <div><i>d-t</i> Tangent Slope: <span id="dtSlopeText">—</span></div>
+        <div><i>v-t</i> Value: <span id="vtValueText">—</span></div>
+      </div>
+    </div>
+
+    <!-- Left Graph: Position vs Time -->
+    <div class="card graph-card">
+      <h2 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Position vs. Time (<i>d - t</i>)</h2>
+      <canvas id="dtCanvas" width="540" height="380"></canvas>
+      <div class="instructions">
+        Red line shows instantaneous tangent slope. Notice it flattens at the peak!
+      </div>
+    </div>
+
+    <!-- Right Graph: Velocity vs Time -->
+    <div class="card graph-card">
+      <h2 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Velocity vs. Time (<i>v - t</i>)</h2>
+      <canvas id="vtCanvas" width="540" height="380"></canvas>
+      <div style="margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <button class="btn btn-action" onclick="toggleSlopeCalculation()">📐 Calculate Acceleration (Slope)</button>
+        <div id="slopeResultBox" class="slope-result"></div>
       </div>
     </div>
 
@@ -268,22 +355,23 @@
     const container = document.getElementById('videoContainer');
     const tableBody = document.getElementById('tableBody');
 
-    // --- TIMING CONSTANTS ---
+    // --- TIMING CONSTANTS (Calibrated to 215 FPS) ---
     const EXPORTED_FPS = 30;         
-    const CAPTURE_FPS = 215;         
+    const CAPTURE_FPS = 215;         // Calibrated for indoor iPhone recording
     const FRAME_DURATION = 1 / EXPORTED_FPS;       
-    const REAL_DT_PER_FRAME = 1 / CAPTURE_FPS;    // 0.004167 s
+    const REAL_DT_PER_FRAME = 1 / CAPTURE_FPS;    
     const STEP_SIZE = 7;
     const MAX_FRAME = 105;
 
     let zeroFrame = 0;
     let guideActive = true;
     let animationFrameId = null;
+    let showSlope = false;
 
-    // Build the observation table for frames 0, 7, 14, ..., 105
+    // --- BUILD OBSERVATION TABLE DATA ---
     const rowsData = [];
     for (let f = 0; f <= MAX_FRAME; f += STEP_SIZE) {
-      rowsData.push({ frame: f, time: f * REAL_DT_PER_FRAME, y: null });
+      rowsData.push({ frame: f, time: f * REAL_DT_PER_FRAME, y: null, vy: null });
     }
 
     function createTable() {
@@ -292,10 +380,7 @@
         const tr = document.createElement('tr');
         tr.id = `row-${row.frame}`;
         tr.onclick = (e) => {
-          // Jump to frame when clicking row (unless typing in input)
-          if (e.target.tagName !== 'INPUT') {
-            jumpToFrame(row.frame);
-          }
+          if (e.target.tagName !== 'INPUT') jumpToFrame(row.frame);
         };
 
         tr.innerHTML = `
@@ -313,15 +398,14 @@
 
     createTable();
 
-    // Calculate instantaneous velocity using the Central Difference Method:
-    // v_i = (y_{i+1} - y_{i-1}) / (t_{i+1} - t_{i-1})
+    // Calculate instantaneous velocity via Central Difference Method
     function calculateVelocities() {
       for (let i = 0; i < rowsData.length; i++) {
         const velCell = document.getElementById(`vel-${i}`);
 
-        // Cannot compute central difference for first and last rows
         if (i === 0 || i === rowsData.length - 1) {
           velCell.textContent = '—';
+          rowsData[i].vy = null;
           continue;
         }
 
@@ -331,8 +415,10 @@
         if (prev.y !== null && !isNaN(prev.y) && next.y !== null && !isNaN(next.y)) {
           const dt = next.time - prev.time;
           const vy = (next.y - prev.y) / dt;
+          rowsData[i].vy = vy;
           velCell.textContent = vy.toFixed(1);
         } else {
+          rowsData[i].vy = null;
           velCell.textContent = '—';
         }
       }
@@ -356,12 +442,9 @@
       timeDisplay.textContent = realTime.toFixed(4);
       frameDisplay.textContent = relativeFrame;
 
-      // Highlight active row if current frame matches
       document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('active-row'));
       const activeTr = document.getElementById(`row-${relativeFrame}`);
-      if (activeTr) {
-        activeTr.classList.add('active-row');
-      }
+      if (activeTr) activeTr.classList.add('active-row');
     }
 
     function loopUpdate() {
@@ -374,25 +457,24 @@
     vid.addEventListener('play', () => {
       cancelAnimationFrame(animationFrameId);
       animationFrameId = requestAnimationFrame(loopUpdate);
-      playBtn.className = 'play-active';
+      playBtn.className = 'btn btn-play-active';
     });
 
     vid.addEventListener('pause', () => {
       cancelAnimationFrame(animationFrameId);
-      playBtn.className = 'secondary';
+      playBtn.className = 'btn btn-secondary';
       updateDisplays();
     });
 
     vid.addEventListener('ended', () => {
-      playBtn.className = 'secondary';
+      playBtn.className = 'btn btn-secondary';
     });
 
     vid.addEventListener('seeked', updateDisplays);
 
     function step(numFrames) {
       pauseVideo();
-      const targetTime = vid.currentTime + (numFrames * FRAME_DURATION);
-      vid.currentTime = Math.max(0, targetTime);
+      vid.currentTime = Math.max(0, vid.currentTime + (numFrames * FRAME_DURATION));
     }
 
     function jumpToFrame(targetFrame) {
@@ -415,23 +497,18 @@
 
     function pauseVideo() {
       vid.pause();
-      playBtn.className = 'secondary';
+      playBtn.className = 'btn btn-secondary';
     }
 
     function togglePlayPause() {
-      if (vid.paused) {
-        playSloMo();
-      } else {
-        pauseVideo();
-      }
+      if (vid.paused) playSloMo(); else pauseVideo();
     }
 
     // Hairline guide
     container.addEventListener('mousemove', (e) => {
       if (!guideActive) return;
       const rect = container.getBoundingClientRect();
-      const y = e.clientY - rect.top;
-      hairline.style.top = y + 'px';
+      hairline.style.top = (e.clientY - rect.top) + 'px';
       hairline.style.display = 'block';
     });
 
@@ -446,9 +523,7 @@
 
     // Keyboard shortcuts
     window.addEventListener('keydown', (e) => {
-      // Don't capture arrow keys while student is typing inside an input field
       if (e.target.tagName === 'INPUT') return;
-
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         step(e.shiftKey ? 7 : 1);
@@ -460,6 +535,307 @@
         togglePlayPause();
       }
     });
+
+    // ==========================================
+    // --- GRAPH ANALYSIS ENGINE & CANVAS CODE ---
+    // ==========================================
+    const tabData = document.getElementById('tabData');
+    const tabGraphs = document.getElementById('tabGraphs');
+    const viewData = document.getElementById('viewData');
+    const viewGraphs = document.getElementById('viewGraphs');
+
+    const dtCanvas = document.getElementById('dtCanvas');
+    const vtCanvas = document.getElementById('vtCanvas');
+    const dtCtx = dtCanvas.getContext('2d');
+    const vtCtx = vtCanvas.getContext('2d');
+
+    const timeSlider = document.getElementById('timeSlider');
+    const sliderTimeText = document.getElementById('sliderTimeText');
+    const dtSlopeText = document.getElementById('dtSlopeText');
+    const vtValueText = document.getElementById('vtValueText');
+    const slopeResultBox = document.getElementById('slopeResultBox');
+
+    const maxTime = rowsData[rowsData.length - 1].time;
+    timeSlider.max = maxTime.toFixed(4);
+
+    function switchView(mode) {
+      if (mode === 'data') {
+        tabData.className = 'active';
+        tabGraphs.className = '';
+        viewData.className = 'view-section active-view';
+        viewGraphs.className = 'view-section';
+      } else {
+        pauseVideo();
+        tabData.className = '';
+        tabGraphs.className = 'active';
+        viewData.className = 'view-section';
+        viewGraphs.className = 'view-section active-view';
+        drawAllGraphs();
+      }
+    }
+
+    timeSlider.addEventListener('input', () => {
+      drawAllGraphs();
+    });
+
+    // Quadratic fit (y = At^2 + Bt + C) for position curve
+    function fitQuadratic(validPoints) {
+      let n = validPoints.length;
+      if (n < 3) return null;
+
+      let s4 = 0, s3 = 0, s2 = 0, s1 = 0, s0 = n;
+      let sy2 = 0, sy1 = 0, sy0 = 0;
+
+      for (let p of validPoints) {
+        let t = p.time, y = p.y;
+        let t2 = t * t;
+        s1 += t; s2 += t2; s3 += t2 * t; s4 += t2 * t2;
+        sy0 += y; sy1 += y * t; sy2 += y * t2;
+      }
+
+      // Solve 3x3 system via Cramer's rule
+      function det3(m) {
+        return m[0][0]*(m[1][1]*m[2][2] - m[1][2]*m[2][1]) -
+               m[0][1]*(m[1][0]*m[2][2] - m[1][2]*m[2][0]) +
+               m[0][2]*(m[1][0]*m[2][1] - m[1][1]*m[2][0]);
+      }
+
+      let D = det3([[s4, s3, s2], [s3, s2, s1], [s2, s1, s0]]);
+      if (Math.abs(D) < 1e-12) return null;
+
+      let Da = det3([[sy2, s3, s2], [sy1, s2, s1], [sy0, s1, s0]]);
+      let Db = det3([[s4, sy2, s2], [s3, sy1, s1], [s2, sy0, s0]]);
+      let Dc = det3([[s4, s3, sy2], [s3, s2, sy1], [s2, s1, sy0]]);
+
+      return { A: Da / D, B: Db / D, C: Dc / D };
+    }
+
+    // Linear fit (v = mt + b) for velocity line
+    function fitLinear(validPoints) {
+      let n = validPoints.length;
+      if (n < 2) return null;
+
+      let st = 0, sv = 0, st2 = 0, stv = 0;
+      for (let p of validPoints) {
+        st += p.time;
+        sv += p.vy;
+        st2 += p.time * p.time;
+        stv += p.time * p.vy;
+      }
+
+      let m = (n * stv - st * sv) / (n * st2 - st * st);
+      let b = (sv - m * st) / n;
+      return { m, b };
+    }
+
+    function toggleSlopeCalculation() {
+      showSlope = !showSlope;
+      drawAllGraphs();
+    }
+
+    function drawAllGraphs() {
+      const curT = parseFloat(timeSlider.value);
+      sliderTimeText.textContent = curT.toFixed(4) + ' s';
+
+      // 1. Gather valid points
+      const validYPoints = rowsData.filter(r => r.y !== null && !isNaN(r.y));
+      const validVPoints = rowsData.filter(r => r.vy !== null && !isNaN(r.vy));
+
+      const qFit = fitQuadratic(validYPoints);
+      const lFit = fitLinear(validVPoints);
+
+      // --- DRAW D-T GRAPH ---
+      drawDtGraph(validYPoints, qFit, curT);
+
+      // --- DRAW V-T GRAPH ---
+      drawVtGraph(validVPoints, lFit, curT);
+    }
+
+    function drawDtGraph(points, qFit, curT) {
+      const w = dtCanvas.width, h = dtCanvas.height;
+      const padL = 55, padR = 20, padT = 30, padB = 45;
+      dtCtx.clearRect(0, 0, w, h);
+
+      // Coordinate limits
+      const minT = 0, maxT = 0.50;
+      const minY = -25, maxY = 30;
+
+      function toX(t) { return padL + (t - minT) / (maxT - minT) * (w - padL - padR); }
+      function toY(y) { return h - padB - (y - minY) / (maxY - minY) * (h - padT - padB); }
+
+      drawGrid(dtCtx, w, h, padL, padR, padT, padB, minT, maxT, minY, maxY, toX, toY, 'Time (s)', 'Position y (cm)');
+
+      // Draw fitted parabola
+      if (qFit) {
+        dtCtx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+        dtCtx.lineWidth = 2.5;
+        dtCtx.beginPath();
+        for (let t = minT; t <= maxT; t += 0.005) {
+          let y = qFit.A * t * t + qFit.B * t + qFit.C;
+          let px = toX(t), py = toY(y);
+          if (t === minT) dtCtx.moveTo(px, py); else dtCtx.lineTo(px, py);
+        }
+        dtCtx.stroke();
+
+        // Tangent line at curT
+        let yAtT = qFit.A * curT * curT + qFit.B * curT + qFit.C;
+        let slope = 2 * qFit.A * curT + qFit.B; // instantaneous velocity!
+        dtSlopeText.textContent = slope.toFixed(1) + ' cm/s';
+
+        // Draw tangent line segment
+        let dtSpan = 0.08;
+        let t1 = Math.max(minT, curT - dtSpan);
+        let t2 = Math.min(maxT, curT + dtSpan);
+        let y1 = yAtT + slope * (t1 - curT);
+        let y2 = yAtT + slope * (t2 - curT);
+
+        dtCtx.strokeStyle = '#ef4444';
+        dtCtx.lineWidth = 2.5;
+        dtCtx.beginPath();
+        dtCtx.moveTo(toX(t1), toY(y1));
+        dtCtx.lineTo(toX(t2), toY(y2));
+        dtCtx.stroke();
+
+        // Center dot on curve
+        dtCtx.fillStyle = '#ef4444';
+        dtCtx.beginPath();
+        dtCtx.arc(toX(curT), toY(yAtT), 5, 0, Math.PI * 2);
+        dtCtx.fill();
+      } else {
+        dtSlopeText.textContent = '—';
+      }
+
+      // Draw student data points
+      dtCtx.fillStyle = '#38bdf8';
+      for (let p of points) {
+        dtCtx.beginPath();
+        dtCtx.arc(toX(p.time), toY(p.y), 4.5, 0, Math.PI * 2);
+        dtCtx.fill();
+      }
+    }
+
+    function drawVtGraph(points, lFit, curT) {
+      const w = vtCanvas.width, h = vtCanvas.height;
+      const padL = 60, padR = 20, padT = 30, padB = 45;
+      vtCtx.clearRect(0, 0, w, h);
+
+      const minT = 0, maxT = 0.50;
+      const minV = -340, maxV = 200;
+
+      function toX(t) { return padL + (t - minT) / (maxT - minT) * (w - padL - padR); }
+      function toY(v) { return h - padB - (v - minV) / (maxV - minV) * (h - padT - padB); }
+
+      drawGrid(vtCtx, w, h, padL, padR, padT, padB, minT, maxT, minV, maxV, toX, toY, 'Time (s)', 'Velocity vy (cm/s)');
+
+      // If slope calculation requested
+      if (lFit && showSlope) {
+        vtCtx.strokeStyle = '#10b981';
+        vtCtx.lineWidth = 2.5;
+        vtCtx.beginPath();
+        vtCtx.moveTo(toX(minT), toY(lFit.m * minT + lFit.b));
+        vtCtx.lineTo(toX(maxT), toY(lFit.m * maxT + lFit.b));
+        vtCtx.stroke();
+
+        slopeResultBox.style.display = 'block';
+        const a_cm = lFit.m;
+        const a_m = lFit.m / 100;
+        slopeResultBox.innerHTML = `Acceleration (Slope) = <b>${a_cm.toFixed(1)} cm/s²</b> &nbsp;(&approx; <b>${a_m.toFixed(2)} m/s²</b>)`;
+      } else {
+        slopeResultBox.style.display = 'none';
+      }
+
+      // Current velocity indicator
+      if (lFit) {
+        let vAtT = lFit.m * curT + lFit.b;
+        vtValueText.textContent = vAtT.toFixed(1) + ' cm/s';
+
+        // Draw marker dot matching tangent
+        vtCtx.fillStyle = '#ef4444';
+        vtCtx.beginPath();
+        vtCtx.arc(toX(curT), toY(vAtT), 5, 0, Math.PI * 2);
+        vtCtx.fill();
+
+        // Draw vertical hairline cross
+        vtCtx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+        vtCtx.setLineDash([3, 3]);
+        vtCtx.beginPath();
+        vtCtx.moveTo(toX(curT), toY(minV));
+        vtCtx.lineTo(toX(curT), toY(maxV));
+        vtCtx.stroke();
+        vtCtx.setLineDash([]);
+      } else {
+        vtValueText.textContent = '—';
+      }
+
+      // Draw student velocity points
+      vtCtx.fillStyle = '#a7f3d0';
+      for (let p of points) {
+        vtCtx.beginPath();
+        vtCtx.arc(toX(p.time), toY(p.vy), 4.5, 0, Math.PI * 2);
+        vtCtx.fill();
+      }
+    }
+
+    // Utility: Draw Axes, Ticks, and Grid
+    function drawGrid(ctx, w, h, padL, padR, padT, padB, minX, maxX, minY, maxY, toX, toY, xLabel, yLabel) {
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+
+      // X Grid
+      for (let x = 0; x <= maxX; x += 0.1) {
+        ctx.beginPath();
+        ctx.moveTo(toX(x), toY(minY));
+        ctx.lineTo(toX(x), toY(maxY));
+        ctx.stroke();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(x.toFixed(1), toX(x), h - padB + 16);
+      }
+
+      // Y Grid
+      let yStep = (maxY - minY) > 200 ? 50 : 10;
+      let startY = Math.ceil(minY / yStep) * yStep;
+      for (let y = startY; y <= maxY; y += yStep) {
+        ctx.beginPath();
+        ctx.moveTo(toX(minX), toY(y));
+        ctx.lineTo(toX(maxX), toY(y));
+        ctx.stroke();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(y, padL - 8, toY(y) + 4);
+      }
+
+      // Zero-axis line
+      if (minY <= 0 && maxY >= 0) {
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(toX(minX), toY(0));
+        ctx.lineTo(toX(maxX), toY(0));
+        ctx.stroke();
+      }
+
+      // Outer Axis Border
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(padL, padT, w - padL - padR, h - padT - padB);
+
+      // Axis Labels
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(xLabel, padL + (w - padL - padR) / 2, h - 10);
+
+      ctx.save();
+      ctx.translate(15, padT + (h - padT - padB) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText(yLabel, 0, 0);
+      ctx.restore();
+    }
   </script>
 </body>
 </html>
