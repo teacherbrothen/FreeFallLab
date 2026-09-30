@@ -35,7 +35,6 @@
       margin: 0;
       font-size: 1.5rem;
     }
-    /* View Toggle Tabs */
     .view-toggle {
       display: flex;
       background: #0f172a;
@@ -58,7 +57,6 @@
       background: var(--accent);
       color: #0f172a;
     }
-    /* Layouts */
     .view-section {
       width: 100%;
       max-width: 1200px;
@@ -84,7 +82,6 @@
     .table-card { flex: 1 1 420px; max-width: 520px; }
     .graph-card { flex: 1 1 520px; max-width: 580px; }
 
-    /* Video player styling */
     .video-wrapper {
       position: relative;
       background: #000;
@@ -144,7 +141,6 @@
     button.btn-action { background: var(--green); font-weight: 600; }
     button.btn-action:hover { background: #059669; }
 
-    /* Table styling */
     .table-container {
       width: 100%;
       max-height: 65vh;
@@ -179,7 +175,7 @@
     input.pos-input:focus { outline: none; border-color: var(--accent); background: #0f172a; }
     .vel-cell { font-family: monospace; color: #a7f3d0; font-size: 0.95rem; }
 
-    /* Graph View Styling */
+    /* --- FIXED NON-JITTERING HEADER BAR --- */
     .graph-header-bar {
       width: 100%;
       max-width: 1200px;
@@ -188,17 +184,19 @@
       border-radius: 12px;
       margin-bottom: 16px;
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;          /* Prevent wrapping */
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      box-sizing: border-box;
     }
     .slider-group {
       display: flex;
       align-items: center;
       gap: 12px;
-      flex: 1 1 350px;
+      flex: 1 1 auto;
+      min-width: 320px;
     }
     .slider-group input[type="range"] {
       flex: 1;
@@ -207,10 +205,29 @@
     .graph-readouts {
       display: flex;
       gap: 20px;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 600;
+      flex-shrink: 0;             /* Don't allow this to crush */
     }
-    .graph-readouts span { font-family: monospace; color: var(--accent); }
+    .readout-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    /* Fixed width and tabular fonts prevent any jumpiness */
+    .num-slot {
+      display: inline-block;
+      width: 82px;
+      text-align: right;
+      font-family: monospace;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      font-size: 1rem;
+    }
+    .time-slot {
+      width: 68px;
+    }
     canvas {
       background: #0f172a;
       border: 1px solid #475569;
@@ -251,7 +268,6 @@
   <!-- ================= VIEW 1: DATA COLLECTION ================= -->
   <div id="viewData" class="view-section active-view">
     
-    <!-- Left Column: Video & Controls -->
     <div class="card video-card">
       <div class="video-wrapper" id="videoContainer">
         <video id="vid" preload="auto" playsinline>
@@ -267,7 +283,6 @@
         <div>Frame: <span id="frameDisplay">0</span></div>
       </div>
 
-      <!-- Step Controls -->
       <div class="controls">
         <button class="btn btn-secondary" onclick="step(-7)">« -7 Frames</button>
         <button class="btn" onclick="step(-1)">‹ -1 Frame</button>
@@ -276,7 +291,6 @@
         <button class="btn btn-secondary" onclick="setZero()">Set t = 0</button>
       </div>
 
-      <!-- Playback Controls -->
       <div class="controls">
         <button id="playBtn" class="btn btn-secondary" onclick="playSloMo()">▶ Play Slo-Mo</button>
         <button id="pauseBtn" class="btn btn-pause" onclick="pauseVideo()">⏸ Pause</button>
@@ -289,7 +303,6 @@
       </div>
     </div>
 
-    <!-- Right Column: Observation Table -->
     <div class="card table-card">
       <h2 style="font-size: 1.15rem; margin: 0 0 10px 0;">Observation Table</h2>
       <div class="table-container">
@@ -312,16 +325,25 @@
   <!-- ================= VIEW 2: GRAPH ANALYSIS ================= -->
   <div id="viewGraphs" class="view-section">
     
-    <!-- Shared Graph Control Bar -->
+    <!-- Stable, fixed-width header bar -->
     <div class="graph-header-bar">
       <div class="slider-group">
-        <label for="timeSlider" style="font-weight: 600;">Time Cursor (<i>t</i>):</label>
+        <label for="timeSlider" style="font-weight: 600; white-space: nowrap;">Time Cursor (<i>t</i>):</label>
         <input type="range" id="timeSlider" min="0" max="0.4884" step="0.001" value="0.20">
       </div>
       <div class="graph-readouts">
-        <div>Time: <span id="sliderTimeText">0.2000 s</span></div>
-        <div><i>d-t</i> Tangent Slope: <span id="dtSlopeText">—</span></div>
-        <div><i>v-t</i> Value: <span id="vtValueText">—</span></div>
+        <div class="readout-item">
+          <span>Time:</span>
+          <span class="num-slot time-slot" id="sliderTimeText">0.2000 s</span>
+        </div>
+        <div class="readout-item">
+          <span><i>d-t</i> Tangent Slope:</span>
+          <span class="num-slot" id="dtSlopeText">—</span>
+        </div>
+        <div class="readout-item">
+          <span><i>v-t</i> Value:</span>
+          <span class="num-slot" id="vtValueText">—</span>
+        </div>
       </div>
     </div>
 
@@ -357,7 +379,7 @@
 
     // --- TIMING CONSTANTS (Calibrated to 215 FPS) ---
     const EXPORTED_FPS = 30;         
-    const CAPTURE_FPS = 215;         // Calibrated for indoor iPhone recording
+    const CAPTURE_FPS = 215;         
     const FRAME_DURATION = 1 / EXPORTED_FPS;       
     const REAL_DT_PER_FRAME = 1 / CAPTURE_FPS;    
     const STEP_SIZE = 7;
@@ -368,7 +390,7 @@
     let animationFrameId = null;
     let showSlope = false;
 
-    // --- BUILD OBSERVATION TABLE DATA ---
+    // Build observation table data
     const rowsData = [];
     for (let f = 0; f <= MAX_FRAME; f += STEP_SIZE) {
       rowsData.push({ frame: f, time: f * REAL_DT_PER_FRAME, y: null, vy: null });
@@ -593,7 +615,6 @@
         sy0 += y; sy1 += y * t; sy2 += y * t2;
       }
 
-      // Solve 3x3 system via Cramer's rule
       function det3(m) {
         return m[0][0]*(m[1][1]*m[2][2] - m[1][2]*m[2][1]) -
                m[0][1]*(m[1][0]*m[2][2] - m[1][2]*m[2][0]) +
@@ -610,24 +631,6 @@
       return { A: Da / D, B: Db / D, C: Dc / D };
     }
 
-    // Linear fit (v = mt + b) for velocity line
-    function fitLinear(validPoints) {
-      let n = validPoints.length;
-      if (n < 2) return null;
-
-      let st = 0, sv = 0, st2 = 0, stv = 0;
-      for (let p of validPoints) {
-        st += p.time;
-        sv += p.vy;
-        st2 += p.time * p.time;
-        stv += p.time * p.vy;
-      }
-
-      let m = (n * stv - st * sv) / (n * st2 - st * st);
-      let b = (sv - m * st) / n;
-      return { m, b };
-    }
-
     function toggleSlopeCalculation() {
       showSlope = !showSlope;
       drawAllGraphs();
@@ -637,18 +640,33 @@
       const curT = parseFloat(timeSlider.value);
       sliderTimeText.textContent = curT.toFixed(4) + ' s';
 
-      // 1. Gather valid points
       const validYPoints = rowsData.filter(r => r.y !== null && !isNaN(r.y));
       const validVPoints = rowsData.filter(r => r.vy !== null && !isNaN(r.vy));
 
+      // 1. Fit position parabola: y(t) = A*t^2 + B*t + C
       const qFit = fitQuadratic(validYPoints);
-      const lFit = fitLinear(validVPoints);
 
-      // --- DRAW D-T GRAPH ---
+      // 2. Derive analytical velocity: v(t) = dy/dt = 2*A*t + B
+      let sharedV = null;
+      let sharedFit = null;
+
+      if (qFit) {
+        // v = m*t + b  where m = 2A, b = B
+        sharedFit = { m: 2 * qFit.A, b: qFit.B };
+        sharedV = sharedFit.m * curT + sharedFit.b;
+
+        // Both values are now guaranteed to match identically:
+        const vFormatted = sharedV.toFixed(1) + ' cm/s';
+        dtSlopeText.textContent = vFormatted;
+        vtValueText.textContent = vFormatted;
+      } else {
+        dtSlopeText.textContent = '—';
+        vtValueText.textContent = '—';
+      }
+
+      // Draw both graphs with matching values
       drawDtGraph(validYPoints, qFit, curT);
-
-      // --- DRAW V-T GRAPH ---
-      drawVtGraph(validVPoints, lFit, curT);
+      drawVtGraph(validVPoints, sharedFit, curT, sharedV);
     }
 
     function drawDtGraph(points, qFit, curT) {
@@ -656,7 +674,6 @@
       const padL = 55, padR = 20, padT = 30, padB = 45;
       dtCtx.clearRect(0, 0, w, h);
 
-      // Coordinate limits
       const minT = 0, maxT = 0.50;
       const minY = -25, maxY = 30;
 
@@ -665,7 +682,6 @@
 
       drawGrid(dtCtx, w, h, padL, padR, padT, padB, minT, maxT, minY, maxY, toX, toY, 'Time (s)', 'Position y (cm)');
 
-      // Draw fitted parabola
       if (qFit) {
         dtCtx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
         dtCtx.lineWidth = 2.5;
@@ -677,18 +693,16 @@
         }
         dtCtx.stroke();
 
-        // Tangent line at curT
         let yAtT = qFit.A * curT * curT + qFit.B * curT + qFit.C;
-        let slope = 2 * qFit.A * curT + qFit.B; // instantaneous velocity!
-        dtSlopeText.textContent = slope.toFixed(1) + ' cm/s';
+        let slope = 2 * qFit.A * curT + qFit.B;
 
-        // Draw tangent line segment
         let dtSpan = 0.08;
         let t1 = Math.max(minT, curT - dtSpan);
         let t2 = Math.min(maxT, curT + dtSpan);
         let y1 = yAtT + slope * (t1 - curT);
         let y2 = yAtT + slope * (t2 - curT);
 
+        // Red tangent line
         dtCtx.strokeStyle = '#ef4444';
         dtCtx.lineWidth = 2.5;
         dtCtx.beginPath();
@@ -696,16 +710,13 @@
         dtCtx.lineTo(toX(t2), toY(y2));
         dtCtx.stroke();
 
-        // Center dot on curve
         dtCtx.fillStyle = '#ef4444';
         dtCtx.beginPath();
         dtCtx.arc(toX(curT), toY(yAtT), 5, 0, Math.PI * 2);
         dtCtx.fill();
-      } else {
-        dtSlopeText.textContent = '—';
       }
 
-      // Draw student data points
+      // Student position points
       dtCtx.fillStyle = '#38bdf8';
       for (let p of points) {
         dtCtx.beginPath();
@@ -714,7 +725,7 @@
       }
     }
 
-    function drawVtGraph(points, lFit, curT) {
+    function drawVtGraph(points, vFit, curT, currentV) {
       const w = vtCanvas.width, h = vtCanvas.height;
       const padL = 60, padR = 20, padT = 30, padB = 45;
       vtCtx.clearRect(0, 0, w, h);
@@ -728,34 +739,29 @@
       drawGrid(vtCtx, w, h, padL, padR, padT, padB, minT, maxT, minV, maxV, toX, toY, 'Time (s)', 'Velocity vy (cm/s)');
 
       // If slope calculation requested
-      if (lFit && showSlope) {
+      if (vFit && showSlope) {
         vtCtx.strokeStyle = '#10b981';
         vtCtx.lineWidth = 2.5;
         vtCtx.beginPath();
-        vtCtx.moveTo(toX(minT), toY(lFit.m * minT + lFit.b));
-        vtCtx.lineTo(toX(maxT), toY(lFit.m * maxT + lFit.b));
+        vtCtx.moveTo(toX(minT), toY(vFit.m * minT + vFit.b));
+        vtCtx.lineTo(toX(maxT), toY(vFit.m * maxT + vFit.b));
         vtCtx.stroke();
 
         slopeResultBox.style.display = 'block';
-        const a_cm = lFit.m;
-        const a_m = lFit.m / 100;
+        const a_cm = vFit.m;
+        const a_m = vFit.m / 100;
         slopeResultBox.innerHTML = `Acceleration (Slope) = <b>${a_cm.toFixed(1)} cm/s²</b> &nbsp;(&approx; <b>${a_m.toFixed(2)} m/s²</b>)`;
       } else {
         slopeResultBox.style.display = 'none';
       }
 
       // Current velocity indicator
-      if (lFit) {
-        let vAtT = lFit.m * curT + lFit.b;
-        vtValueText.textContent = vAtT.toFixed(1) + ' cm/s';
-
-        // Draw marker dot matching tangent
+      if (vFit && currentV !== null) {
         vtCtx.fillStyle = '#ef4444';
         vtCtx.beginPath();
-        vtCtx.arc(toX(curT), toY(vAtT), 5, 0, Math.PI * 2);
+        vtCtx.arc(toX(curT), toY(currentV), 5, 0, Math.PI * 2);
         vtCtx.fill();
 
-        // Draw vertical hairline cross
         vtCtx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
         vtCtx.setLineDash([3, 3]);
         vtCtx.beginPath();
@@ -763,11 +769,9 @@
         vtCtx.lineTo(toX(curT), toY(maxV));
         vtCtx.stroke();
         vtCtx.setLineDash([]);
-      } else {
-        vtValueText.textContent = '—';
       }
 
-      // Draw student velocity points
+      // Student calculated velocity points
       vtCtx.fillStyle = '#a7f3d0';
       for (let p of points) {
         vtCtx.beginPath();
@@ -776,7 +780,6 @@
       }
     }
 
-    // Utility: Draw Axes, Ticks, and Grid
     function drawGrid(ctx, w, h, padL, padR, padT, padB, minX, maxX, minY, maxY, toX, toY, xLabel, yLabel) {
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
@@ -809,7 +812,7 @@
         ctx.fillText(y, padL - 8, toY(y) + 4);
       }
 
-      // Zero-axis line
+      // Zero axis line
       if (minY <= 0 && maxY >= 0) {
         ctx.strokeStyle = '#64748b';
         ctx.lineWidth = 1.5;
@@ -819,12 +822,10 @@
         ctx.stroke();
       }
 
-      // Outer Axis Border
       ctx.strokeStyle = '#475569';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(padL, padT, w - padL - padR, h - padT - padB);
 
-      // Axis Labels
       ctx.fillStyle = '#f8fafc';
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'center';
