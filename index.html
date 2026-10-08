@@ -29,7 +29,7 @@
       background-color: var(--bg);
       color: var(--text-main);
       margin: 0;
-      padding: 20px 16px;
+      padding: 16px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -39,13 +39,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 20px;
-      gap: 12px;
+      margin-bottom: 16px;
+      gap: 10px;
     }
 
     h1 {
       margin: 0;
-      font-size: 1.65rem;
+      font-size: 1.6rem;
       font-weight: 700;
       color: var(--text-main);
     }
@@ -78,7 +78,7 @@
     /* Layout Containers */
     .view-section {
       width: 100%;
-      max-width: 1200px;
+      max-width: 1320px;
       display: none;
     }
     .view-section.active-view {
@@ -86,12 +86,13 @@
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 20px;
+      align-items: flex-start;
+      gap: 18px;
     }
 
     .card {
       background: var(--card-bg);
-      padding: 20px;
+      padding: 16px;
       border-radius: 16px;
       border: 1px solid var(--border-light);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -100,9 +101,21 @@
       align-items: center;
       box-sizing: border-box;
     }
-    .video-card { flex: 1 1 480px; max-width: 560px; }
-    .table-card { flex: 1 1 420px; max-width: 520px; }
-    .graph-card { flex: 1 1 520px; max-width: 580px; }
+    
+    /* Video Card: Hugs the enlarged video without excessive side margins */
+    .video-card { 
+      flex: 0 1 auto; 
+      width: fit-content;
+      max-width: 540px; 
+    }
+    .table-card { 
+      flex: 1 1 440px; 
+      max-width: 520px; 
+    }
+    .graph-card { 
+      flex: 1 1 520px; 
+      max-width: 580px; 
+    }
 
     /* Video Frame */
     .video-wrapper {
@@ -114,52 +127,149 @@
       max-width: 100%;
       cursor: crosshair;
       border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    video { display: block; max-height: 56vh; max-width: 100%; }
+    
+    /* Much taller video for clear number reading */
+    video { 
+      display: block; 
+      max-height: 75vh; 
+      min-height: 520px;
+      width: auto; 
+      max-width: 100%; 
+    }
+
     #hairline {
       position: absolute;
       left: 0;
       width: 100%;
       height: 1.5px;
-      background: rgba(239, 68, 68, 0.9);
-      box-shadow: 0 0 4px rgba(239, 68, 68, 0.8);
+      background: rgba(239, 68, 68, 0.95);
+      box-shadow: 0 0 4px rgba(239, 68, 68, 0.9);
       pointer-events: none;
       display: none;
+      z-index: 10;
     }
 
-    /* Readouts Panel */
-    .readout-panel {
+    /* Magnifier Loupe Lens */
+    .loupe-lens {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 3px solid var(--primary-blue);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+      pointer-events: none;
+      display: none;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      background: #000;
+    }
+    .loupe-lens canvas {
+      width: 150px !important;
+      height: 150px !important;
+      display: block;
+      border: none !important;
+      border-radius: 0 !important;
+      background: #000 !important;
+    }
+    .loupe-crosshair {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 1.5px;
+      background: rgba(239, 68, 68, 0.95);
+      box-shadow: 0 0 3px rgba(239, 68, 68, 0.8);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .loupe-badge {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(2, 132, 199, 0.9);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+
+    /* Consolidated Readout Bar */
+    .readout-bar {
       display: flex;
-      gap: 24px;
-      margin: 14px 0;
-      font-size: 1.15rem;
-      font-weight: 600;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      box-sizing: border-box;
+      gap: 12px;
+      margin: 10px 0 8px 0;
       background: var(--panel-bg);
-      padding: 10px 24px;
+      padding: 8px 14px;
       border-radius: 10px;
       border: 1px solid var(--border);
     }
-    .readout-panel span {
+    .readout-item {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .readout-val {
       color: var(--primary-blue);
       font-family: monospace;
+      font-size: 1.12rem;
       font-variant-numeric: tabular-nums;
     }
+    .readout-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+    }
+    .btn-zero {
+      background: #e2e8f0;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-zero:hover { background: #cbd5e1; }
 
-    /* Buttons */
-    .controls {
+    /* Compact Controls Toolbars */
+    .controls-toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      align-items: center;
       justify-content: center;
-      margin-bottom: 8px;
+      gap: 6px;
+      width: 100%;
+      margin-bottom: 6px;
     }
+    .toolbar-separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 4px;
+    }
+
     button.btn {
       background: var(--primary-blue);
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       cursor: pointer;
       font-weight: 600;
       transition: all 0.15s;
@@ -170,16 +280,52 @@
       color: var(--text-main);
     }
     button.btn-secondary:hover { background: #cbd5e1; }
+    button.btn-step {
+      padding: 7px 10px;
+      min-width: 42px;
+      font-family: monospace;
+      font-size: 0.86rem;
+    }
     button.btn-play-active { background: var(--accent-green); }
     button.btn-pause { background: var(--accent-red); }
     button.btn-pause:hover { background: var(--accent-red-hover); }
     button.btn-action { background: var(--accent-green); }
     button.btn-action:hover { background: var(--accent-green-hover); }
 
+    /* Secondary Tools Bar */
+    .tools-toolbar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+    .btn-tool {
+      background: var(--panel-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-tool:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+    .btn-tool.active {
+      background: #e0f2fe;
+      color: var(--primary-blue);
+      border-color: #7dd3fc;
+    }
+
     /* Observation Table */
     .table-container {
       width: 100%;
-      max-height: 64vh;
+      max-height: 74vh;
+      min-height: 520px;
       overflow-y: auto;
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -190,12 +336,13 @@
       background: var(--panel-bg);
       position: sticky;
       top: 0;
-      padding: 10px 8px;
+      padding: 9px 8px;
       color: var(--text-main);
       border-bottom: 2px solid var(--border);
       font-weight: 700;
+      z-index: 5;
     }
-    td { padding: 6px 8px; border-bottom: 1px solid var(--border-light); }
+    td { padding: 5px 8px; border-bottom: 1px solid var(--border-light); }
     tr.active-row { background: #e0f2fe !important; font-weight: bold; }
     tr:hover { background: #f8fafc; cursor: pointer; }
 
@@ -260,7 +407,7 @@
       font-weight: 600;
       flex-shrink: 0;
     }
-    .readout-item {
+    .readout-item-graph {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -278,8 +425,8 @@
     }
     .time-slot { width: 70px; }
 
-    /* Canvas styling */
-    canvas {
+    /* Graph Canvas styling */
+    .graph-card canvas {
       background: var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -287,7 +434,7 @@
       height: 380px;
     }
 
-    /* Result pill matching the screenshot's peach notice style */
+    /* Result pill matching peach notice style */
     .slope-result {
       margin-top: 10px;
       font-size: 0.95rem;
@@ -302,11 +449,11 @@
     }
 
     .instructions {
-      margin-top: 12px;
-      font-size: 0.85rem;
+      margin-top: 6px;
+      font-size: 0.8rem;
       color: var(--text-muted);
       text-align: center;
-      line-height: 1.4;
+      line-height: 1.35;
     }
   </style>
 </head>
@@ -331,30 +478,48 @@
           Your browser does not support HTML video.
         </video>
         <div id="hairline"></div>
+        <div id="loupe" class="loupe-lens">
+          <canvas id="loupeCanvas" width="150" height="150"></canvas>
+          <div class="loupe-crosshair"></div>
+          <span class="loupe-badge">2.4×</span>
+        </div>
       </div>
 
-      <div class="readout-panel">
-        <div>Time: <span id="timeDisplay">0.0000</span> s</div>
-        <div>Frame: <span id="frameDisplay">0</span></div>
+      <!-- Compact Unified Readout Bar -->
+      <div class="readout-bar">
+        <div class="readout-item">
+          <span>Time:</span>
+          <span class="readout-val" id="timeDisplay">0.0000</span>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">s</span>
+        </div>
+        <div class="readout-divider"></div>
+        <div class="readout-item">
+          <span>Frame:</span>
+          <span class="readout-val" id="frameDisplay">0</span>
+        </div>
+        <button class="btn-zero" onclick="setZero()" title="Set current frame as t = 0">Set t = 0</button>
       </div>
 
-      <div class="controls">
-        <button class="btn btn-secondary" onclick="step(-7)">« -7 Frames</button>
-        <button class="btn" onclick="step(-1)">‹ -1 Frame</button>
-        <button class="btn" onclick="step(1)">+1 Frame ›</button>
-        <button class="btn btn-secondary" onclick="step(7)">+7 Frames »</button>
-        <button class="btn btn-secondary" onclick="setZero()">Set t = 0</button>
-      </div>
-
-      <div class="controls">
-        <button id="playBtn" class="btn btn-secondary" onclick="playSloMo()">▶ Play Slo-Mo</button>
+      <!-- Playback and Stepping Toolbar -->
+      <div class="controls-toolbar">
+        <button id="playBtn" class="btn btn-secondary" onclick="playSloMo()">▶ Slo-Mo</button>
         <button id="pauseBtn" class="btn btn-pause" onclick="pauseVideo()">⏸ Pause</button>
-        <button class="btn btn-secondary" id="guideBtn" onclick="toggleGuide()">Toggle Guide</button>
+        <div class="toolbar-separator"></div>
+        <button class="btn btn-secondary btn-step" onclick="step(-7)" title="Back 7 frames">« -7</button>
+        <button class="btn btn-step" onclick="step(-1)" title="Back 1 frame">‹ -1</button>
+        <button class="btn btn-step" onclick="step(1)" title="Forward 1 frame">+1 ›</button>
+        <button class="btn btn-secondary btn-step" onclick="step(7)" title="Forward 7 frames">+7 »</button>
+      </div>
+
+      <!-- Inspection Tools Toolbar -->
+      <div class="tools-toolbar">
+        <button class="btn-tool active" id="guideBtn" onclick="toggleGuide()">📏 Hairline Guide</button>
+        <button class="btn-tool active" id="loupeBtn" onclick="toggleLoupe()">🔍 Magnifier (2.4×)</button>
       </div>
 
       <div class="instructions">
-        <strong>Shortcuts:</strong> <b>Left / Right</b>: ±1 Frame &bull; <b>Shift + Left / Right</b>: ±7 Frames &bull; <b>Space</b>: Play/Pause.<br>
-        <i>Click any table row to jump directly to that frame.</i>
+        <strong>Shortcuts:</strong> <b>◄ / ►</b>: ±1 Frame &bull; <b>Shift + ◄ / ►</b>: ±7 Frames &bull; <b>Space</b>: Play/Pause.<br>
+        <i>Hover over ruler to inspect with Magnifier & Hairline. Click rows to jump.</i>
       </div>
     </div>
 
@@ -386,15 +551,15 @@
         <input type="range" id="timeSlider" min="0" max="0.4884" step="0.001" value="0.20">
       </div>
       <div class="graph-readouts">
-        <div class="readout-item">
+        <div class="readout-item-graph">
           <span>Time:</span>
           <span class="num-slot time-slot" id="sliderTimeText">0.2000 s</span>
         </div>
-        <div class="readout-item">
+        <div class="readout-item-graph">
           <span><i>d-t</i> Tangent Slope:</span>
           <span class="num-slot" id="dtSlopeText" style="color: var(--primary-blue);">—</span>
         </div>
-        <div class="readout-item">
+        <div class="readout-item-graph">
           <span><i>v-t</i> Value:</span>
           <span class="num-slot" id="vtValueText" style="color: var(--accent-green);">—</span>
         </div>
@@ -428,6 +593,11 @@
     const frameDisplay = document.getElementById('frameDisplay');
     const playBtn = document.getElementById('playBtn');
     const hairline = document.getElementById('hairline');
+    const loupe = document.getElementById('loupe');
+    const loupeCanvas = document.getElementById('loupeCanvas');
+    const loupeCtx = loupeCanvas.getContext('2d');
+    const guideBtn = document.getElementById('guideBtn');
+    const loupeBtn = document.getElementById('loupeBtn');
     const container = document.getElementById('videoContainer');
     const tableBody = document.getElementById('tableBody');
 
@@ -441,6 +611,8 @@
 
     let zeroFrame = 0;
     let guideActive = true;
+    let loupeActive = true;
+    let lastMousePos = null;
     let animationFrameId = null;
     let showSlope = false;
 
@@ -521,6 +693,10 @@
       document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('active-row'));
       const activeTr = document.getElementById(`row-${relativeFrame}`);
       if (activeTr) activeTr.classList.add('active-row');
+
+      if (loupeActive && lastMousePos) {
+        renderLoupe();
+      }
     }
 
     function loopUpdate() {
@@ -580,21 +756,91 @@
       if (vid.paused) playSloMo(); else pauseVideo();
     }
 
-    // Hairline guide
+    // --- HAIRLINE & MAGNIFIER LOUPE ENGINE ---
+    function renderLoupe() {
+      if (!loupeActive || !lastMousePos || !loupe) return;
+      const { mouseX, mouseY } = lastMousePos;
+      const vidRect = vid.getBoundingClientRect();
+      const contRect = container.getBoundingClientRect();
+
+      if (mouseX < 0 || mouseX > vidRect.width || mouseY < 0 || mouseY > vidRect.height) {
+        loupe.style.display = 'none';
+        return;
+      }
+
+      const loupeRadius = 75;
+      const relX = mouseX + (vidRect.left - contRect.left);
+      const relY = mouseY + (vidRect.top - contRect.top);
+
+      // Center loupe on cursor, clamped safely inside container boundaries
+      const clampedX = Math.max(loupeRadius, Math.min(contRect.width - loupeRadius, relX));
+      const clampedY = Math.max(loupeRadius, Math.min(contRect.height - loupeRadius, relY));
+
+      loupe.style.left = clampedX + 'px';
+      loupe.style.top = clampedY + 'px';
+      loupe.style.display = 'block';
+
+      if (vid.videoWidth && vid.videoHeight && vid.readyState >= 2) {
+        const scaleX = vid.videoWidth / vidRect.width;
+        const scaleY = vid.videoHeight / vidRect.height;
+        const srcCenterX = mouseX * scaleX;
+        const srcCenterY = mouseY * scaleY;
+        const zoom = 2.4;
+        const loupeSize = 150;
+        const srcW = loupeSize / zoom;
+        const srcH = loupeSize / zoom;
+        const srcX = srcCenterX - srcW / 2;
+        const srcY = srcCenterY - srcH / 2;
+
+        loupeCtx.clearRect(0, 0, loupeSize, loupeSize);
+        try {
+          loupeCtx.imageSmoothingEnabled = true;
+          loupeCtx.imageSmoothingQuality = 'high';
+          loupeCtx.drawImage(vid, srcX, srcY, srcW, srcH, 0, 0, loupeSize, loupeSize);
+        } catch (err) {
+          // Safe catch for local security sandbox
+        }
+      }
+    }
+
     container.addEventListener('mousemove', (e) => {
-      if (!guideActive) return;
-      const rect = container.getBoundingClientRect();
-      hairline.style.top = (e.clientY - rect.top) + 'px';
-      hairline.style.display = 'block';
+      const contRect = container.getBoundingClientRect();
+      const vidRect = vid.getBoundingClientRect();
+
+      if (guideActive) {
+        hairline.style.top = (e.clientY - contRect.top) + 'px';
+        hairline.style.display = 'block';
+      }
+
+      if (loupeActive) {
+        lastMousePos = {
+          mouseX: e.clientX - vidRect.left,
+          mouseY: e.clientY - vidRect.top
+        };
+        renderLoupe();
+      }
     });
 
     container.addEventListener('mouseleave', () => {
       hairline.style.display = 'none';
+      loupe.style.display = 'none';
+      lastMousePos = null;
     });
 
     function toggleGuide() {
       guideActive = !guideActive;
+      guideBtn.classList.toggle('active', guideActive);
       if (!guideActive) hairline.style.display = 'none';
+    }
+
+    function toggleLoupe() {
+      loupeActive = !loupeActive;
+      loupeBtn.classList.toggle('active', loupeActive);
+      if (!loupeActive) {
+        loupe.style.display = 'none';
+      } else if (lastMousePos) {
+        renderLoupe();
+      }
     }
 
     // Keyboard shortcuts
@@ -838,7 +1084,6 @@
 
     // Light Theme Grid & Axes
     function drawGrid(ctx, w, h, padL, padR, padT, padB, minX, maxX, minY, maxY, toX, toY, xLabel, yLabel) {
-      // Subtle background grid
       ctx.strokeStyle = '#e2e8f0';
       ctx.lineWidth = 1;
 
